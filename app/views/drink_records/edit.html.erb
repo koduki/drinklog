@@ -1,0 +1,64 @@
+<div class="mb-4">
+  <%= link_to "← キャンセル", @drink_record, class: "text-indigo-600 hover:text-indigo-800" %>
+</div>
+
+<div class="bg-white rounded-lg shadow-lg overflow-hidden" data-controller="chart">
+  <div class="p-4 border-b">
+    <h1 class="text-xl font-bold text-gray-800">記録を編集する</h1>
+  </div>
+
+  <%= form_with(model: @drink_record, local: true, class: "p-4 space-y-6") do |f| %>
+    <% if @drink_record.errors.any? %>
+      <div class="bg-red-50 text-red-600 p-3 rounded text-sm">
+        <ul class="list-disc pl-5">
+          <% @drink_record.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">銘柄名 <span class="text-red-500">*</span></label>
+      <%= f.text_field :title, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
+    </div>
+
+    <!-- レーダーチャート領域 -->
+    <div class="w-full aspect-square relative bg-white border rounded-lg p-2">
+      <canvas data-chart-target="canvas"></canvas>
+    </div>
+
+    <!-- AI Data (Hidden) - AIスコアは編集画面では固定とする -->
+    <%= f.hidden_field :ai_sweetness, data: { chart_target: "aiSweetness" } %>
+    <%= f.hidden_field :ai_acidity, data: { chart_target: "aiAcidity" } %>
+    <%= f.hidden_field :ai_body, data: { chart_target: "aiBody" } %>
+    <%= f.hidden_field :ai_aroma, data: { chart_target: "aiAroma" } %>
+    <%= f.hidden_field :ai_bitterness, data: { chart_target: "aiBitterness" } %>
+
+    <!-- ユーザー評価入力 -->
+    <div class="bg-indigo-50 p-4 rounded-lg space-y-4">
+      <h3 class="font-semibold text-indigo-800">あなたの評価 (1〜5)</h3>
+
+      <% { sweetness: "甘味", acidity: "酸味", body: "コク", aroma: "香り", bitterness: "苦味/渋味" }.each do |key, label| %>
+        <div>
+          <div class="flex justify-between text-sm text-gray-600">
+            <label><%= label %></label>
+            <span data-chart-target="<%= key %>Value"><%= @drink_record.send("user_#{key}") || 3.0 %></span>
+          </div>
+          <%= f.range_field "user_#{key}", in: 1..5, step: 0.5,
+              class: "w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer",
+              data: { chart_target: "user#{key.to_s.capitalize}", action: "input->chart#update" } %>
+        </div>
+      <% end %>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700">メモ・感想</label>
+      <%= f.text_area :comment, rows: 3, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
+    </div>
+
+    <div class="pt-2">
+      <%= f.submit "更新する", class: "w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700" %>
+    </div>
+  <% end %>
+</div>

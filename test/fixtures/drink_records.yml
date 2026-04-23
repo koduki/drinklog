@@ -1,0 +1,29 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  comment: MyText
+  ai_sweetness: 1.5
+  ai_acidity: 1.5
+  ai_body: 1.5
+  ai_aroma: 1.5
+  ai_bitterness: 1.5
+  user_sweetness: 1.5
+  user_acidity: 1.5
+  user_body: 1.5
+  user_aroma: 1.5
+  user_bitterness: 1.5
+
+two:
+  title: MyString
+  comment: MyText
+  ai_sweetness: 1.5
+  ai_acidity: 1.5
+  ai_body: 1.5
+  ai_aroma: 1.5
+  ai_bitterness: 1.5
+  user_sweetness: 1.5
+  user_acidity: 1.5
+  user_body: 1.5
+  user_aroma: 1.5
+  user_bitterness: 1.5
