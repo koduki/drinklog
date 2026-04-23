@@ -58,7 +58,7 @@ class DrinkRecordsController < ApplicationController
       uri = URI.parse("http://localhost:5000/api/analyze")
       http = Net::HTTP.new(uri.host, uri.port)
 
-      request = Net::HTTP::Post.new(uri.request_uri, { 'Content-Type' => 'application/json' })
+      request = Net::HTTP::Post.new(uri.request_uri, { "Content-Type" => "application/json" })
       # Python側がダミーモードかどうかを判断できるようにする（本番なら不要）
       request.body = {
         image_base64: base64_image,
