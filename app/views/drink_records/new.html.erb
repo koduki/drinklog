@@ -1,0 +1,93 @@
+<div class="mb-4">
+  <%= link_to "← 戻る", drink_records_path, class: "text-indigo-600 hover:text-indigo-800" %>
+</div>
+
+<div class="bg-white rounded-lg shadow-lg overflow-hidden" data-controller="analyzer chart">
+  <div class="p-4 border-b">
+    <h1 class="text-xl font-bold text-gray-800">新しく記録する</h1>
+    <p class="text-sm text-gray-500 mt-1">ラベルを撮影するとAIが自動でスペックを解析します</p>
+  </div>
+
+  <%= form_with(model: @drink_record, local: true, class: "p-4 space-y-6", html: { multipart: true }) do |f| %>
+    <% if @drink_record.errors.any? %>
+      <div class="bg-red-50 text-red-600 p-3 rounded text-sm">
+        <ul class="list-disc pl-5">
+          <% @drink_record.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <!-- 画像アップロード＆プレビュー -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">ラベル写真</label>
+      <div class="flex items-center justify-center w-full">
+        <label class="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 overflow-hidden relative">
+          <div class="flex flex-col items-center justify-center pt-5 pb-6 z-10" data-analyzer-target="loader">
+            <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+            </svg>
+            <p class="mb-2 text-sm text-gray-500 font-semibold">タップして撮影</p>
+            <p class="text-xs text-gray-500">または画像を選択</p>
+          </div>
+          <img data-analyzer-target="preview" class="absolute inset-0 w-full h-full object-cover hidden z-20" />
+
+          <%= f.file_field :image, accept: "image/*", capture: "environment", class: "hidden",
+              data: { action: "change->analyzer#handleFileSelect" } %>
+        </label>
+      </div>
+    </div>
+
+    <div data-analyzer-target="loader" class="hidden py-4 text-center text-indigo-600 font-bold animate-pulse">
+      AIが解析中... 🤖
+    </div>
+
+    <!-- AI解析結果＆フォーム (初期は半透明にしておく) -->
+    <div data-analyzer-target="resultSection" class="space-y-6 opacity-50 transition-opacity duration-500">
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">銘柄名 <span class="text-red-500">*</span></label>
+        <%= f.text_field :title, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50", data: { analyzer_target: "title" } %>
+      </div>
+
+      <!-- レーダーチャート領域 -->
+      <div class="w-full aspect-square relative bg-white border rounded-lg p-2">
+        <canvas data-chart-target="canvas"></canvas>
+      </div>
+
+      <!-- AI Data (Hidden) -->
+      <%= f.hidden_field :ai_sweetness, data: { analyzer_target: "aiSweetness", chart_target: "aiSweetness", action: "change->chart#update" } %>
+      <%= f.hidden_field :ai_acidity, data: { analyzer_target: "aiAcidity", chart_target: "aiAcidity", action: "change->chart#update" } %>
+      <%= f.hidden_field :ai_body, data: { analyzer_target: "aiBody", chart_target: "aiBody", action: "change->chart#update" } %>
+      <%= f.hidden_field :ai_aroma, data: { analyzer_target: "aiAroma", chart_target: "aiAroma", action: "change->chart#update" } %>
+      <%= f.hidden_field :ai_bitterness, data: { analyzer_target: "aiBitterness", chart_target: "aiBitterness", action: "change->chart#update" } %>
+
+      <!-- ユーザー評価入力（★などでUIを工夫できるが、今回はRangeスライダーを使用） -->
+      <div class="bg-indigo-50 p-4 rounded-lg space-y-4">
+        <h3 class="font-semibold text-indigo-800">あなたの評価 (1〜5)</h3>
+
+        <% { sweetness: "甘味", acidity: "酸味", body: "コク", aroma: "香り", bitterness: "苦味/渋味" }.each do |key, label| %>
+          <div>
+            <div class="flex justify-between text-sm text-gray-600">
+              <label><%= label %></label>
+              <span data-chart-target="<%= key %>Value">3</span>
+            </div>
+            <%= f.range_field "user_#{key}", in: 1..5, step: 0.5, value: 3.0,
+                class: "w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer",
+                data: { chart_target: "user#{key.to_s.capitalize}", action: "input->chart#update" } %>
+          </div>
+        <% end %>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">メモ・感想</label>
+        <%= f.text_area :comment, rows: 3, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50", placeholder: "函館の市場でイカ刺しと合わせた" %>
+      </div>
+
+      <div class="pt-2">
+        <%= f.submit "保存する", class: "w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+      </div>
+    </div>
+  <% end %>
+</div>
