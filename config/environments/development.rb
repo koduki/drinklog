@@ -71,5 +71,5 @@ Rails.application.configure do
   # config.generators.apply_rubocop_autocorrect_after_generate!
 
   # Allow requests from GitHub Codespaces.
-  config.hosts << /.*\.app\.github\.dev/
+  config.hosts << ".app.github.dev"
 end
