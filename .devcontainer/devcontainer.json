@@ -2,7 +2,8 @@
   "name": "Ruby on Rails",
   "image": "mcr.microsoft.com/devcontainers/ruby:3.3",
   "features": {
-    "ghcr.io/devcontainers/features/github-cli:1": {}
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {}
   },
   "forwardPorts": [3000],
   "portsAttributes": {
@@ -11,7 +12,7 @@
       "onAutoForward": "notify"
     }
   },
-  "postCreateCommand": "bin/setup --skip-server",
+  "postCreateCommand": "npm install -g @google/gemini-cli @openai/codex && bin/setup --skip-server",
   "customizations": {
     "vscode": {
       "extensions": [
