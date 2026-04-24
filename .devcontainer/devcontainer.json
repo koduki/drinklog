@@ -1,6 +1,8 @@
 {
   "name": "Ruby on Rails",
-  "image": "mcr.microsoft.com/devcontainers/ruby:3.3",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
